@@ -6,18 +6,29 @@ import {WalletOutlined, QrcodeOutlined, SendOutlined} from '@ant-design/icons';
 import {Typography, Skeleton, Tooltip, Spin, Modal, Button} from 'antd';
 import QR from 'qrcode.react';
 import {ethers} from "ethers";
+import {isValidEth, valid} from "../helpers/Utils";
 
 const {Text} = Typography;
 
+const ETH_REGEX = "^[0-9]+.?[0-9]{0,18}$";
 
 export default function Wallet(props) {
 
-    const [open, setOpen] = useState()
-    const [selectedAddress, setSelectedAddress] = useState()
-    const [signer, setSigner] = useState()
-    const [qr, setQr] = useState()
+    const [open, setOpen] = useState(undefined);
+    const [selectedAddress, setSelectedAddress] = useState(undefined);
+    const [signer, setSigner] = useState(undefined);
+    const [qr, setQr] = useState(undefined);
+    const [showError, setShowError] = React.useState(false);
+    const [amount, setAmount] = useState(undefined);
+    const [toAddress, setToAddress] = useState(undefined);
 
-    let providerSend = ""
+    const setDefault = () => {
+        setShowError(false);
+        setAmount(undefined);
+        setToAddress("");
+    };
+
+    let providerSend = "";
     if (props.provider) {
 
         providerSend = (
@@ -35,37 +46,28 @@ export default function Wallet(props) {
         )
     }
 
-
-    const [amount, setAmount] = useState()
-    const [toAddress, setToAddress] = useState()
-
-
     useEffect(() => {
-        const getAddress = async () => {
+        (async () => {
             if (props.provider) {
-                let loadedSigner
+                let loadedSigner;
                 try {
-                    //console.log("SETTING SIGNER")
-                    loadedSigner = props.provider.getSigner()
+                    loadedSigner = props.provider.getSigner();
                     setSigner(loadedSigner)
                 } catch (e) {
-                    //console.log(e)
+                    console.log(e);
                 }
                 if (props.address) {
                     setSelectedAddress(props.address)
                 } else {
                     if (!selectedAddress && loadedSigner) {
-                        //console.log("GETTING ADDRESS FOR WALLET PROVIDER",loadedSigner)
-                        let result = await loadedSigner.getAddress()
+                        let result = await loadedSigner.getAddress();
                         if (result) {
                             setSelectedAddress(result)
                         }
                     }
                 }
             }
-            //setQr("")
-        };
-        getAddress()
+        })();
     }, [props]);
 
     let display;
@@ -74,7 +76,7 @@ export default function Wallet(props) {
         display = (
             <QR value={selectedAddress} size={"450"} level={"H"} includeMargin={true} renderAs={"svg"}
                 imageSettings={{excavate: false}}/>
-        )
+        );
         receiveButton = (
             <Button key="hide" onClick={() => {
                 setQr("")
@@ -86,7 +88,7 @@ export default function Wallet(props) {
 
         const inputStyle = {
             padding: 10
-        }
+        };
 
         display = (
             <div>
@@ -102,11 +104,14 @@ export default function Wallet(props) {
                 <div style={inputStyle}>
                     <EtherInput
                         price={props.price}
-                        value={amount}
+                        value={amount !== undefined ? amount + "" : ""}
+                        placeholder="amount"
                         onChange={(value) => {
+                            setShowError(false);
                             setAmount(value)
                         }}
                     />
+                    {showError && <React.Fragment>Not valid ETH</React.Fragment>}
                 </div>
 
             </div>
@@ -119,40 +124,47 @@ export default function Wallet(props) {
             </Button>
         )
     }
+    const header =
+        <div>
+            {selectedAddress ? (
+                <Address value={selectedAddress} ensProvider={props.ensProvider}/>
+            ) : <Spin/>}
+            <div style={{float: "right", paddingRight: 25}}>
+                <Balance address={selectedAddress} provider={props.provider}
+                         dollarMultiplier={props.price}/>
+            </div>
+        </div>;
 
     return (
         <span>
       {providerSend}
             <Modal
                 visible={open}
-                title={
-                    <div>
-                        {selectedAddress ? (
-                            <Address value={selectedAddress} ensProvider={props.ensProvider}/>
-                        ) : <Spin/>}
-                        <div style={{float: "right", paddingRight: 25}}>
-                            <Balance address={selectedAddress} provider={props.provider}
-                                     dollarMultiplier={props.price}/>
-                        </div>
-                    </div>
-                }
+                title={header}
                 onOk={() => {
-                    setOpen(!open)
+                    setOpen(!open);
+                    setDefault();
                 }}
                 onCancel={() => {
-                    setOpen(!open)
-
+                    setOpen(!open);
+                    setDefault();
                 }}
                 footer={[
                     receiveButton,
                     <Button key="submit" type="primary" disabled={!amount || !toAddress || qr} loading={false}
                             onClick={() => {
+                                console.log("TYPE" + typeof amount);
+                                if (!("" + amount).match(ETH_REGEX)) {
+                                    setShowError(true);
+                                    return;
+                                }
                                 const tx = Transactor(props.provider);
                                 tx({
                                     to: toAddress,
                                     value: ethers.utils.parseEther("" + amount),
                                 });
-                                setOpen(!open)
+                                setDefault();
+                                setOpen(!open);
                             }}>
                         <SendOutlined/> Send
                     </Button>,
