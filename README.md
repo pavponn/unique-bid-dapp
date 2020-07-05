@@ -1,6 +1,7 @@
 # 🏦 Unique Bid Auction 
 
-Decentralized Unique Bid Action game based on [scaffold-eth](https://github.com/austintgriffith/scaffold-eth) by [Austin Griffith](https://github.com/austintgriffith).
+Decentralized Unique Bid Action game implemented using Solidity (for smart contracts) & React for frontend.
+Poject based on [scaffold-eth](https://github.com/austintgriffith/scaffold-eth) by [Austin Griffith](https://github.com/austintgriffith).
 
 
 
