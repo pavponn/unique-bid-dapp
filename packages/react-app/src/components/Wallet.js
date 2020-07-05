@@ -6,7 +6,6 @@ import {WalletOutlined, QrcodeOutlined, SendOutlined} from '@ant-design/icons';
 import {Typography, Skeleton, Tooltip, Spin, Modal, Button} from 'antd';
 import QR from 'qrcode.react';
 import {ethers} from "ethers";
-import {isValidEth, valid} from "../helpers/Utils";
 
 const {Text} = Typography;
 
