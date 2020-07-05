@@ -14,7 +14,7 @@ const mainnetProvider = new ethers.providers.InfuraProvider("mainnet", "2717afb6
 const localProvider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : "http://localhost:8545");
 
 function App() {
-    const title = "🏦 Unique Bid Action Game";
+    const title = "🏦 Unique Bid Auction Game";
     const subTitle = "simple decentralized strategy game";
 
     const [address, setAddress] = useState(undefined);
