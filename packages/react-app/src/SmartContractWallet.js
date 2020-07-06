@@ -96,7 +96,6 @@ export default function SmartContractWallet(props) {
         <Card className="left"
               title={smartContractInfoCardTitle}
               size="large"
-
               loading={!title}
               actions={[withdrawAction, depositAction]}>
             {smartContractInfoCardMeta}
