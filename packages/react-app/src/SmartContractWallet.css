@@ -1,0 +1,12 @@
+.mainScreen {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.mainScreen > div {
+    width: 33%;
+    border: 2px dashed red;
+}
+

@@ -37,6 +37,7 @@ function App() {
                     price={price}
                 />
             </div>
+
             <div style={{padding: 40, textAlign: "left"}}>
                 <SmartContractWallet
                     address={address}
@@ -45,6 +46,7 @@ function App() {
                     price={price}
                     gasPrice={gasPrice}
                 />
+
             </div>
 
             <div style={{position: 'fixed', textAlign: 'right', right: 0, bottom: 20, padding: 10}}>
@@ -60,6 +62,7 @@ function App() {
                     </Col>
                 </Row>
             </div>
+
             <div style={{position: 'fixed', textAlign: 'left', left: 0, bottom: 20, padding: 10}}>
                 <Row align="middle" gutter={4}>
                     <Col span={9}>
@@ -75,8 +78,6 @@ function App() {
                         />
                     </Col>
                 </Row>
-
-
             </div>
 
         </div>
