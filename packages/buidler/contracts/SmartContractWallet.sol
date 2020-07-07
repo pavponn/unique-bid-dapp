@@ -57,7 +57,7 @@ contract SmartContractWallet {
         emit RevealAnswer(msg.sender, answer, salt);
     }
 
-    function getSaltedHash(bytes32 data, bytes32 salt) private view returns (bytes32){
+    function getSaltedHash(bytes32 data, bytes32 salt) public view returns (bytes32) {
         return keccak256(abi.encodePacked(address(this), data, salt));
     }
 

@@ -9,3 +9,14 @@
     width: 33%;
 }
 
+.buttons-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2rem;
+
+}
+
+.commit-button, .reveal-button {
+    margin: 1rem;
+}

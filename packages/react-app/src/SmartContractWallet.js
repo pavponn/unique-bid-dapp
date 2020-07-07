@@ -1,12 +1,13 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {ethers} from 'ethers';
 import Blockies from 'react-blockies';
 import {Card, Row, Col, List, Button, Input} from 'antd';
 import {DownloadOutlined, UploadOutlined} from '@ant-design/icons';
 import {useContractLoader, useContractReader, useEventListener, useBlockNumber, useBalance} from "./hooks"
 import {Transactor} from './helpers'
-import {Address, Balance, Timeline} from './components'
+import {Address, Balance} from './components'
 import './SmartContractWallet.css';
+import Web3 from "web3";
 
 const {Meta} = Card;
 
@@ -25,10 +26,18 @@ export default function SmartContractWallet(props) {
     const title = useContractReader(readContracts, contractName, "title", 1777);
     const owner = useContractReader(readContracts, contractName, "owner", 1777);
 
-    const ownerUpdates = useEventListener(readContracts, contractName, "UpdateOwner", props.localProvider, 1);//set that last number to the block the contract is deployed (this needs to be automatic in the contract loader!?!)
+    const ownerUpdates = useEventListener(readContracts, contractName, "UpdateOwner", props.localProvider, 1);
+    //TODO: set that last number to the block the contract is deployed (this needs to be automatic in the contract loader!?!)
 
     const contractAddress = readContracts ? readContracts[contractName].address : "";
     // const contractBalance = useBalance(contractAddress, props.localProvider);
+
+    const [gameNumber, setGameNumber] = useState(undefined);
+    const [isCommitted, setIsCommitted] = useState(false);
+
+    const [salt, setSalt] = useState();
+    const [hash, setHash] = useState();
+    const hassssh = useContractReader(readContracts, contractName, "getSaltedHash", ["0x756e646566696e6564", "0x606cccb621282ac99ddc0769c5a4b59b7b46b7fa0cade5b49da809a71d21509f"], 1337);
 
     let displayAddress, displayOwner;
 
@@ -105,6 +114,7 @@ export default function SmartContractWallet(props) {
         (<List className="right"
                header={<div><b>UpdateOwner</b> events</div>}
                bordered
+               size="large"
                dataSource={ownerUpdates}
                renderItem={item => (
                    <List.Item style={{fontSize: 22}}>
@@ -116,28 +126,37 @@ export default function SmartContractWallet(props) {
 
     const commitButton =
         <Button
+            className="commit-button"
             size="2"
+            shape="round"
+            disabled={isCommitted || !gameNumber}
             onClick={
                 async () => {
-                    // tx(
-                    //     writeContracts['SmartContractWallet'].commit(this.state.hash),
-                    //     120000,
-                    //     0,
-                    //     0,
-                    //     (receipt) => {
-                    //         if (receipt) {
-                    //             console.log("COMMITTED:", receipt)
-                    //         }
-                    //     }
-                    // );
+                    alert(hash);
+                    alert(salt);
+                    tx(
+                        writeContracts['SmartContractWallet'].commit(hash),
+                        120000,
+                        0,
+                        0,
+                        (receipt) => {
+                            if (receipt) {
+                                console.log("COMMITTED:", receipt);
+                                setIsCommitted(true);
+                            }
+                        }
+                    );
                 }
-            }>
-            Commit
+            }
+        >Commit
         </Button>;
 
     const revealButton =
         <Button
+            className="reveal-button"
             size="2"
+            shape="round"
+            disabled={!isCommitted}
             onClick={
                 async () => {
                     // tx(
@@ -154,34 +173,47 @@ export default function SmartContractWallet(props) {
                     // )
                 }
             }
-        >
-            Reveal Answer
+        >Reveal
         </Button>;
 
     const kek =
-        <div className="middle">
-            <div>This is question</div>
+        <Card
+            className="middle"
+            title={<div><span role="img" aria-label="dice">🎲</span> Game zone</div>}
+            size="large"
+        >
             <Input
-                // style={{
-                //     verticalAlign: "middle",
-                //     width: 200,
-                //     margin: 6,
-                //     maxHeight: 20,
-                //     padding: 5,
-                //     border: '2px solid #ccc',
-                //     borderRadius: 5
-                // }}
-                type="text" name="pres" value={""/*this.state.pres*/} onChange={(e) => {}/*this.handleInput.bind(this)*/} // TODO
+                className="game-input"
+                placeholder={"your number"}
+                type="number"
+                max={3228}
+                name="pres"
+                value={gameNumber}
+                onChange={
+                    async (e) => {
+                        if (("" + gameNumber).length > 10) {
+                            return;
+                        }
+                        setGameNumber(e.target.value);
+                        let bytes = Web3.utils.utf8ToHex("" + gameNumber).padEnd(66, '0');
+                        let newSalt = Web3.utils.sha3("" + Math.random()).padEnd(66, '0');
+                        let newHash = await readContracts[contractName].getSaltedHash(bytes, newSalt);
+                        setHash(newHash);
+                        setSalt(newSalt);
+                    }
+                }
             />
             <div>
-                Salt: {"SAAALT" /*this.state.salt*/}
+                Salt: {salt}
             </div>
             <div>
-                Hash: {"HAASH" /*this.state.hash*/}
+                Hash: {hash}
             </div>
-            {commitButton}
-            {revealButton}
-        </div>;
+            <div className="buttons-wrapper">
+                {commitButton}
+                {revealButton}
+            </div>
+        </Card>;
 
     return (
         <div className="mainScreen">
