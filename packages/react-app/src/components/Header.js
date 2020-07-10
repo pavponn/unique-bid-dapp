@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 export default function Header(props) {
     return (
         <div onClick={() => {
-            window.open("https://github.com/austintgriffith/scaffold-eth");
+            window.open("https://github.com/pavponn/unique-bid-dapp");
         }}>
             <PageHeader
                 title={props.title}

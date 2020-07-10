@@ -27,17 +27,17 @@ export default function SmartContractWallet(props) {
     const owner = useContractReader(readContracts, contractName, "owner", 1777);
 
     const ownerUpdates = useEventListener(readContracts, contractName, "UpdateOwner", props.localProvider, 1);
+    const commitUpdates = useEventListener(readContracts, contractName, "CommitHash", props.localProvider, 1);
+    const revealUpdates = useEventListener(readContracts, contractName, "RevealAnswer", props.localProvider, 1);
+
     //TODO: set that last number to the block the contract is deployed (this needs to be automatic in the contract loader!?!)
 
     const contractAddress = readContracts ? readContracts[contractName].address : "";
     // const contractBalance = useBalance(contractAddress, props.localProvider);
 
     const [gameNumber, setGameNumber] = useState(undefined);
+    const [secret, setSecret] = useState(undefined);
     const [isCommitted, setIsCommitted] = useState(false);
-
-    const [salt, setSalt] = useState();
-    const [hash, setHash] = useState();
-    const hassssh = useContractReader(readContracts, contractName, "getSaltedHash", ["0x756e646566696e6564", "0x606cccb621282ac99ddc0769c5a4b59b7b46b7fa0cade5b49da809a71d21509f"], 1337);
 
     let displayAddress, displayOwner;
 
@@ -102,7 +102,7 @@ export default function SmartContractWallet(props) {
         </div>;
 
     const smartContractInfoCard =
-        <Card className="left"
+        <Card className="smartContractCard"
               title={smartContractInfoCardTitle}
               size="large"
               loading={!title}
@@ -110,16 +110,29 @@ export default function SmartContractWallet(props) {
             {smartContractInfoCardMeta}
         </Card>;
 
-    const updateOwnerList =
-        (<List className="right"
-               header={<div><b>UpdateOwner</b> events</div>}
+    const commitList =
+        (<List className="commit-list"
+               header={<div><b>Commit</b> events</div>}
                bordered
                size="large"
-               dataSource={ownerUpdates}
+               dataSource={commitUpdates}
                renderItem={item => (
-                   <List.Item style={{fontSize: 22}}>
-                       <Blockies seed={item.oldOwner.toLowerCase()} size={8} scale={2}/> transferred ownership
-                       to <Blockies seed={item.newOwner.toLowerCase()} size={8} scale={2}/>
+                   <List.Item style={{fontSize: 14}}>
+                       <Blockies seed={item.sender.toLowerCase()} size={8} scale={2}/> committed number
+                   </List.Item>
+               )}
+        />);
+
+    const revealList =
+        (<List className="reveal-list"
+               header={<div><b>Reveal</b> events</div>}
+               bordered
+               size="large"
+               dataSource={revealUpdates}
+               renderItem={item => (
+                   <List.Item style={{fontSize: 14}}>
+                       <Blockies seed={item.sender.toLowerCase()} size={8} scale={2}/> revealed
+                       their number <b>{ Web3.utils.hexToUtf8(item.answer)}</b>
                    </List.Item>
                )}
         />);
@@ -129,11 +142,12 @@ export default function SmartContractWallet(props) {
             className="commit-button"
             size="2"
             shape="round"
-            disabled={isCommitted || !gameNumber}
+            disabled={!gameNumber}
             onClick={
                 async () => {
-                    alert(hash);
-                    alert(salt);
+                    let bytes = Web3.utils.utf8ToHex("" + gameNumber).padEnd(66, '0');
+                    let salt = Web3.utils.sha3("" + secret).padEnd(66, '0');
+                    let hash = await readContracts[contractName].getSaltedHash(bytes, salt);
                     tx(
                         writeContracts['SmartContractWallet'].commit(hash),
                         120000,
@@ -156,59 +170,65 @@ export default function SmartContractWallet(props) {
             className="reveal-button"
             size="2"
             shape="round"
-            disabled={!isCommitted}
+            disabled={!gameNumber}
             onClick={
                 async () => {
-                    // tx(
-                    //     writeContracts['SmartContractWallet'].revealAnswer(
-                    //         this.state.web3.utils.utf8ToHex(this.state.pres), this.state.salt),
-                    //     120000,
-                    //     0,
-                    //     0,
-                    //     (receipt) => {
-                    //         if (receipt) {
-                    //             console.log("REVEALED:", receipt)
-                    //         }
-                    //     }
-                    // )
+                    let bytes = Web3.utils.utf8ToHex("" + gameNumber).padEnd(66, '0');
+                    let salt = Web3.utils.sha3("" + secret).padEnd(66, '0');
+                    tx(
+                        writeContracts['SmartContractWallet'].revealAnswer(bytes, salt),
+                        120000,
+                        0,
+                        0,
+                        (receipt) => {
+                            if (receipt) {
+                                console.log("REVEALED:", receipt)
+                            }
+                        }
+                    )
                 }
             }
         >Reveal
         </Button>;
 
-    const kek =
+    const gameCard =
         <Card
-            className="middle"
+            className="gameCard"
             title={<div><span role="img" aria-label="dice">🎲</span> Game zone</div>}
             size="large"
         >
             <Input
-                className="game-input"
+                className="gameCard__number-input"
                 placeholder={"your number"}
                 type="number"
-                max={3228}
+                maxLength={10}
                 name="pres"
                 value={gameNumber}
                 onChange={
                     async (e) => {
-                        if (("" + gameNumber).length > 10) {
-                            return;
+                        if (e.target.value.length > e.target.maxLength) {
+                            e.target.value = e.target.value.slice(0, e.target.maxLength)
                         }
                         setGameNumber(e.target.value);
-                        let bytes = Web3.utils.utf8ToHex("" + gameNumber).padEnd(66, '0');
-                        let newSalt = Web3.utils.sha3("" + Math.random()).padEnd(66, '0');
-                        let newHash = await readContracts[contractName].getSaltedHash(bytes, newSalt);
-                        setHash(newHash);
-                        setSalt(newSalt);
                     }
                 }
             />
-            <div>
-                Salt: {salt}
-            </div>
-            <div>
-                Hash: {hash}
-            </div>
+            <Input
+                className="game__secret-input"
+                placeholder={"your secret"}
+                // type="string"
+                maxLength={15}
+                name="pres"
+                value={secret}
+                onChange={
+                    async (e) => {
+                        if (e.target.value.length > e.target.maxLength) {
+                            e.target.value = e.target.value.slice(0, e.target.maxLength)
+                        }
+                        setSecret(e.target.value);
+                    }
+                }
+            />
             <div className="buttons-wrapper">
                 {commitButton}
                 {revealButton}
@@ -218,8 +238,9 @@ export default function SmartContractWallet(props) {
     return (
         <div className="mainScreen">
             {smartContractInfoCard}
-            {kek}
-            {updateOwnerList}
+            {gameCard}
+            {commitList}
+            {revealList}
         </div>
     );
 

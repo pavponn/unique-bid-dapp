@@ -5,8 +5,12 @@
     justify-content: space-between;
 }
 
-.mainScreen > div {
+.smartContractCard, .gameCard {
     width: 33%;
+}
+
+.commit-list, .reveal-list {
+    width: 16%;
 }
 
 .buttons-wrapper {
