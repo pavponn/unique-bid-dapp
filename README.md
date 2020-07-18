@@ -47,7 +47,9 @@ yarn run chain
 
 > 🛠 [Use this eth.build](https://eth.build/build#1a21b864c6bcdb901070b64965fae825cdfc11b1915d74f058f00b114a8c129a) to double-check your local chain and account balances
 
----
+
+
+## Other commands
 
 ⚙️ Compile your contracts:
 
