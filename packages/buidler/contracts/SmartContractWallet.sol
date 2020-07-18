@@ -4,7 +4,7 @@ import "@nomiclabs/buidler/console.sol";
 
 contract SmartContractWallet {
 
-    string public title = "📄 Smart Contract Wallet";
+    string public title = "💵 Smart Contract";
     address public owner;
 
     mapping(address => Commit) public commits;
@@ -42,7 +42,7 @@ contract SmartContractWallet {
         bool commited;
     }
 
-    function commit(bytes32 dataHash) public {
+    function commit(bytes32 dataHash) public payable {
         require (!commits[msg.sender].commited, "Already committed");
         commits[msg.sender].commit = dataHash;
         commits[msg.sender].block = uint64(block.number);

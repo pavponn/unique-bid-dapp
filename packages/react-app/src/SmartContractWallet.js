@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import {ethers} from 'ethers';
 import Blockies from 'react-blockies';
-import {Card, Row, Col, List, Button, Input} from 'antd';
+import {Card, Row, Col, List, Button, Input, Modal} from 'antd';
 import {DownloadOutlined, UploadOutlined} from '@ant-design/icons';
 import {useContractLoader, useContractReader, useEventListener, useBlockNumber, useBalance} from "./hooks"
 import {Transactor} from './helpers'
@@ -52,13 +52,7 @@ export default function SmartContractWallet(props) {
         displayOwner = (
             <Row>
                 <Col span={8} style={{textAlign: "right", opacity: 0.333, paddingRight: 6, fontSize: 24}}>Owner:</Col>
-                <Col span={16}><Address value={owner} onChange={(newOwner) => {
-                    tx(
-                        writeContracts['SmartContractWallet'].updateOwner(newOwner,
-                            {gasLimit: ethers.utils.hexlify(40000)}
-                        )
-                    )
-                }}/></Col>
+                <Col span={16}><Address value={owner}/></Col>
             </Row>
         )
     }
@@ -106,7 +100,8 @@ export default function SmartContractWallet(props) {
               title={smartContractInfoCardTitle}
               size="large"
               loading={!title}
-              actions={[withdrawAction, depositAction]}>
+            // actions={[withdrawAction, depositAction]}
+        >
             {smartContractInfoCardMeta}
         </Card>;
 
@@ -132,7 +127,7 @@ export default function SmartContractWallet(props) {
                renderItem={item => (
                    <List.Item style={{fontSize: 14}}>
                        <Blockies seed={item.sender.toLowerCase()} size={8} scale={2}/> revealed
-                       their number <b>{ Web3.utils.hexToUtf8(item.answer)}</b>
+                       their number <b>{Web3.utils.hexToUtf8(item.answer)}</b>
                    </List.Item>
                )}
         />);
@@ -191,6 +186,34 @@ export default function SmartContractWallet(props) {
         >Reveal
         </Button>;
 
+    const winnerButton =
+        <Button
+            className="winner-button"
+            color="green"
+            size="2"
+            shape="round"
+            onClick={
+                async () => {
+                    return;
+                }
+            }
+        >Winner?!
+        </Button>;
+
+    const removeBid =
+        <Button
+            className="remove-bid-button"
+            color="red"
+            size="2"
+            shape="round"
+            color="red"
+            onClick={
+                async () => {
+                }
+            }
+        >Remove bid
+        </Button>;
+
     const gameCard =
         <Card
             className="gameCard"
@@ -214,9 +237,9 @@ export default function SmartContractWallet(props) {
                 }
             />
             <Input
-                className="game__secret-input"
+                className="gameCard__secret-input"
                 placeholder={"your secret"}
-                // type="string"
+                type="text"
                 maxLength={15}
                 name="pres"
                 value={secret}
@@ -233,14 +256,35 @@ export default function SmartContractWallet(props) {
                 {commitButton}
                 {revealButton}
             </div>
+            <div className="buttons-wrapper">
+                {winnerButton}
+                {removeBid}
+            </div>
         </Card>;
+
+    const modal =
+        <span>
+      {/*{providerSend}*/}
+            <Modal
+                visible={true}
+                title={"Congratulations 🎉🎉🎉"}
+                onOk={() => {
+                }}
+                onCancel={() => {
+                }}
+            >
+        <div style={{textAlign: "center", margin: "auto"}}>🥇🥇🥇 You're the winner! 🥇🥇🥇</div>
+      </Modal>
+    </span>
 
     return (
         <div className="mainScreen">
+            {/*{modal}*/}
             {smartContractInfoCard}
             {gameCard}
             {commitList}
             {revealList}
+
         </div>
     );
 

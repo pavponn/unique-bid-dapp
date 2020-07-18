@@ -21,6 +21,10 @@
 
 }
 
-.commit-button, .reveal-button {
+.commit-button, .reveal-button, .winner-button, .remove-bid-button {
     margin: 1rem;
+}
+
+.gameCard__secret-input, .gameCard__number-input {
+    margin: 0.5rem 0;
 }
