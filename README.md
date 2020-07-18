@@ -3,9 +3,6 @@
 Decentralized Unique Bid Action game implemented using Solidity (for smart contracts) & React for frontend.
 Poject based on [scaffold-eth](https://github.com/austintgriffith/scaffold-eth) by [Austin Griffith](https://github.com/austintgriffith).
 
-
-
-
 ---
 
 ## ⏱ Quickstart:
@@ -46,8 +43,6 @@ yarn run chain
 **Note**: You'll need to run this command in a new terminal window
 
 > 🛠 [Use this eth.build](https://eth.build/build#1a21b864c6bcdb901070b64965fae825cdfc11b1915d74f058f00b114a8c129a) to double-check your local chain and account balances
-
-
 
 ## Other commands
 
@@ -103,3 +98,26 @@ yarn run send --from 0 --amount 0.5 --to **YOUR-ADDRESS**
 
 ---
 
+
+## Screenshots
+
+<img src="assets/screenshot-1.png" width="900">
+
+---
+
+<img src="assets/screenshot-3.png" width="900"> 
+
+---
+
+<img src="assets/screenshot-4.png" width="900">
+
+---
+
+<img src="assets/screenshot-5.png" width="900"> 
+
+
+## Copyright 
+
+Pavel Ponomarev, 2020 (pavponn@gmail.com)
+
+MIT License.
