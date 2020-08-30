@@ -1,4 +1,5 @@
 # 🏦 Unique Bid Auction 
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/pavponn/watcher/blob/master/LICENSE)
 
 Decentralized Unique Bid Action game implemented using Solidity (for smart contracts) & React for frontend.
 Poject based on [scaffold-eth](https://github.com/austintgriffith/scaffold-eth) by [Austin Griffith](https://github.com/austintgriffith).
